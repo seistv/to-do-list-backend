@@ -7,7 +7,7 @@ import com.seistv.to_do_list_backend.exceptions.DuplicateUserException;
 import com.seistv.to_do_list_backend.exceptions.InvalidPasswordException;
 import com.seistv.to_do_list_backend.exceptions.UserNotFoundException;
 import com.seistv.to_do_list_backend.mappers.UserMapper;
-import com.seistv.to_do_list_backend.models.User;
+import com.seistv.to_do_list_backend.entities.User;
 import com.seistv.to_do_list_backend.repositories.UserRepository;
 import com.seistv.to_do_list_backend.services.UserService;
 import lombok.AllArgsConstructor;
@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
     public UserDto addUser(AddUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateUserException();
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(user);
     }
 
+    @Override
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
@@ -43,6 +45,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
     public void deactivateUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 

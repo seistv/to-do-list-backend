@@ -1,7 +1,7 @@
 package com.seistv.to_do_list_backend.mappers;
 
 import com.seistv.to_do_list_backend.dtos.UserTaskDto;
-import com.seistv.to_do_list_backend.models.Task;
+import com.seistv.to_do_list_backend.entities.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
