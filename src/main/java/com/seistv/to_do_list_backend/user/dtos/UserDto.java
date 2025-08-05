@@ -1,4 +1,4 @@
-package com.seistv.to_do_list_backend.dtos;
+package com.seistv.to_do_list_backend.user.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,19 +6,10 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class UserTaskDto {
-    private Long userId;
+public class UserDto {
+    private Long id;
     private String email;
     private boolean isDeactivated;
-    private Long taskId;
-    private String task;
-    private int order;
-    private boolean isDone;
-
-    @JsonProperty("isDone")
-    public boolean isDone() {
-        return isDone;
-    }
 
     @JsonProperty("isDeactivated")
     public boolean isDeactivated() {
