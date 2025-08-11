@@ -8,6 +8,7 @@ import com.seistv.to_do_list_backend.user.entities.User;
 import com.seistv.to_do_list_backend.user.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,15 @@ public class AuthService {
         Jwt refreshToken = jwtService.generateRefreshToken(user);
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+
+    public Jwt refreshAccessToken(String refreshToken) {
+        Jwt jwt = jwtService.parseToken(refreshToken);
+        if (jwt == null || jwt.isExpired()) {
+            throw new BadCredentialsException("Invalid refresh token.");
+        }
+
+        User user = userRepository.findById(jwt.getUserId()).orElseThrow();
+        return jwtService.generateAccessToken(user);
     }
 }

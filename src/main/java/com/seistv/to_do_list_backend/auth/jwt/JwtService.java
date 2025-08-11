@@ -3,6 +3,7 @@ package com.seistv.to_do_list_backend.auth.jwt;
 import com.seistv.to_do_list_backend.auth.securities.JwtConfig;
 import com.seistv.to_do_list_backend.user.entities.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,22 @@ public class JwtService {
                 .build();
 
         return new Jwt(claims, jwtConfig.getSecretKey());
+    }
+
+    public Jwt parseToken(String token) {
+        try {
+            Claims claims = getClaims(token);
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch(JwtException e) {
+            return null;
+        }
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(jwtConfig.getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
