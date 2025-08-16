@@ -4,9 +4,8 @@ import com.seistv.to_do_list_backend.auth.dtos.JwtResponse;
 import com.seistv.to_do_list_backend.auth.dtos.LoginRequest;
 import com.seistv.to_do_list_backend.auth.dtos.LoginResponse;
 import com.seistv.to_do_list_backend.auth.jwt.Jwt;
-import com.seistv.to_do_list_backend.auth.securities.JwtConfig;
+import com.seistv.to_do_list_backend.auth.securities.CookieConfig;
 import com.seistv.to_do_list_backend.auth.services.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -20,18 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
-    private final JwtConfig jwtConfig;
+    private final CookieConfig cookieConfig;
 
     @PostMapping("/login")
     public JwtResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response){
         LoginResponse loginResult = authService.login(request);
         String refreshToken = loginResult.getRefreshToken().toString();
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/auth/refresh");
-        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
-        cookie.setSecure(true);
-        response.addCookie(cookie);
+        cookieConfig.setupCookie(response, refreshToken);
         return new JwtResponse(loginResult.getAccessToken().toString());
     }
 

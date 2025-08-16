@@ -1,28 +1,36 @@
 package com.seistv.to_do_list_backend.user.controllers;
 
+import com.seistv.to_do_list_backend.auth.dtos.JwtResponse;
+import com.seistv.to_do_list_backend.auth.jwt.Jwt;
+import com.seistv.to_do_list_backend.auth.jwt.JwtService;
+import com.seistv.to_do_list_backend.auth.securities.CookieConfig;
 import com.seistv.to_do_list_backend.user.dtos.AddUserRequest;
 import com.seistv.to_do_list_backend.user.dtos.ChangePasswordRequest;
 import com.seistv.to_do_list_backend.user.dtos.UserDto;
+import com.seistv.to_do_list_backend.user.entities.User;
 import com.seistv.to_do_list_backend.user.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-import java.net.URI;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final JwtService jwtService;
+    private final CookieConfig cookieConfig;
 
     @PostMapping
-    public ResponseEntity<?> addUser(@Valid @RequestBody AddUserRequest request,
-                                     UriComponentsBuilder uriBuilder) {
+    public JwtResponse addUser(@Valid @RequestBody AddUserRequest request,
+                               HttpServletResponse response) {
         UserDto userDto = userService.addUser(request);
-        URI uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(userDto);
+        User user = userService.findById(userDto.getId());
+        Jwt accessToken = jwtService.generateAccessToken(user);
+        Jwt refreshToken = jwtService.generateRefreshToken(user);
+        cookieConfig.setupCookie(response, refreshToken.toString());
+        return new JwtResponse(accessToken.toString());
     }
 
     @PostMapping("/{id}/change-password")

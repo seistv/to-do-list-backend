@@ -4,6 +4,7 @@ import com.seistv.to_do_list_backend.auth.dtos.LoginRequest;
 import com.seistv.to_do_list_backend.auth.dtos.LoginResponse;
 import com.seistv.to_do_list_backend.auth.jwt.Jwt;
 import com.seistv.to_do_list_backend.auth.jwt.JwtService;
+import com.seistv.to_do_list_backend.auth.securities.JwtConfig;
 import com.seistv.to_do_list_backend.user.entities.User;
 import com.seistv.to_do_list_backend.user.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final JwtConfig jwtConfig;
 
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(

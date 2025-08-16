@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -41,25 +41,21 @@ public class SecurityConfig {
     }
     
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter,
+                                                   CustomOAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/auth/refresh").permitAll()
-                        .requestMatchers("/users").permitAll()
-                        .requestMatchers("/api/user-tasks").permitAll()
+                        .requestMatchers("/", "/auth/login", "/auth/refresh", "/users").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2Login(config -> {
-                    config
-                            //.loginPage("/login")
-                            .successHandler((request, response, authentication) -> response.sendRedirect("/"));
+                    config.successHandler(oAuth2SuccessHandler);
                 })
-                .formLogin(AbstractHttpConfigurer::disable)
-                //.formLogin(Customizer.withDefaults())
+                .formLogin(config -> config.defaultSuccessUrl("/api/user-tasks", true))
                 .logout(config -> config.logoutSuccessUrl("/"))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

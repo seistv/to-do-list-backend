@@ -48,4 +48,8 @@ public class UserService {
         user.setDeactivated(!user.isDeactivated());
         userRepository.save(user);
     }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
 }
